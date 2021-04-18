@@ -8,7 +8,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 
-public class JewelQuestGUI extends JFrame {
+public class JewelQuestGUI extends JFrame{
     JPanel panelMenu;
     JLabel menuLabel;
     JButton newGameButton;
@@ -31,6 +31,8 @@ public class JewelQuestGUI extends JFrame {
      */
     public static void main(String[] args) {
         JFrame frame = new JewelQuestGUI();
+
+        frame.setLayout(new CardLayout());
         frame.setVisible(true);
         frame.setResizable(true);
     }
@@ -45,7 +47,6 @@ public class JewelQuestGUI extends JFrame {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setSize(screenSize.width / 2, screenSize.height / 2);
 
-        System.out.println(getHeight());
 
         // Definimos la posición
         setLocationRelativeTo(null);
@@ -70,9 +71,6 @@ public class JewelQuestGUI extends JFrame {
      * Method for creating the menu and its layout
      */
     private void createMenu(){
-        int width = getWidth() / 2;
-        int height = 100;
-
         // Creamos el panel
         panelMenu = new JPanel();
         panelMenu.setLayout(new GridLayout(7, 3));
@@ -103,8 +101,6 @@ public class JewelQuestGUI extends JFrame {
 
         // Agregamos el panel al frame
         add(panelMenu);
-
-
     }
 
     /**
@@ -289,7 +285,7 @@ public class JewelQuestGUI extends JFrame {
      * Method for switching between panels
      */
     private void switchPanel(JPanel newPanel){
-        remove(panelMenu);
+        panelMenu.setVisible(false);
         add(newPanel);
 
         invalidate();
@@ -297,6 +293,7 @@ public class JewelQuestGUI extends JFrame {
 
         repaint();
     }
+
 
 
 
