@@ -23,13 +23,15 @@ public class GameBoard extends JPanel {
     private JLabel pointsLabel;
 
     private JPanel boardPanel;
-    private Jewel board[][];
 
     private Random random;
 
     private LogicGameBoard logicBoard;
 
     private Color boardColor = Color.white;
+
+    public static boolean gameRunning = false;
+    public static Jewel board[][];
 
     /**
      * Constructor of the GameBoard class
@@ -40,12 +42,26 @@ public class GameBoard extends JPanel {
         this.width = width - 18;
         this.height = height - 38;
 
+        gameRunning = true;
+
         new JPanel();
 
         // Instanciamos Random
         this.random = new Random();
 
         prepareElementosTablero();
+    }
+
+    /**
+     * Constructor for resuming the game
+     * @param height Height of the main frame
+     * @param width Width of the main frame
+     * @param values The values of the matrix
+     */
+    public GameBoard(){
+        new JPanel();
+
+        redoGameBoard();
     }
 
     private void prepareElementosTablero(){
@@ -62,7 +78,6 @@ public class GameBoard extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 toggleMainMenu();
-
             }
         });
 
@@ -142,6 +157,52 @@ public class GameBoard extends JPanel {
 
     }
 
+    private void redoGameBoard(){
+        // Creamos el tablero lógico
+        logicBoard = new LogicGameBoard(this.cols, this.rows);
+
+        // Creamos el panel
+        boardPanel = new JPanel();
+
+        boardPanel.setBackground(Color.red);
+
+        System.out.println("Width: " + this.width);
+
+        boardPanel.setAlignmentX(SwingConstants.CENTER);
+        boardPanel.setBounds(0, 30, this.width, this.height - 30);
+
+        int boxWidth = (this.width / this.cols);
+        int boxHeight = ((this.height - 11)/ this.rows);
+
+        // Definimos el layout del GameBoard
+        setLayout(null);
+
+        // Llenamos de labels
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.cols; j++) {
+                board[i][j] = this.getJewel(board[i][j].getId());
+
+                // Insertamos la joya lógica
+                logicBoard.updateBoard(i, j, board[i][j].getId());
+
+                // Ubicamos el label
+                //board[i][j].setPreferredSize(new Dimension(boxWidth - 10, boxHeight - 10));
+                //board[i][j].setBounds(i * boxWidth, j * boxHeight, boxWidth, boxHeight);
+
+
+                // Agregamos el label al panel de juego
+                boardPanel.add(board[i][j]);
+            }
+        }
+
+        // Agregamos el panel al panel principal
+        add(boardPanel);
+
+        logicBoard.printBoard();
+
+        revalidate();
+    }
+
     /**
      * Select a random number between 1 and 4
      * @return a new Jewel
@@ -165,6 +226,21 @@ public class GameBoard extends JPanel {
 
     }
 
+    private Jewel getJewel(int id){
+        switch(id){
+            case 1:
+                return new BlueJewel();
+            case 2:
+                return new GreenJewel();
+            case 3:
+                return new RedJewel();
+            case 4:
+                return new YellowJewel();
+        }
+
+        return null;
+    }
+
     /**
      * Method for repainting the board
      */
@@ -177,12 +253,13 @@ public class GameBoard extends JPanel {
      * Method for going back
      */
     private void toggleMainMenu(){
-        setVisible(false);
+        /*setVisible(false);
 
         invalidate();
         validate();
 
-        repaint();
+        repaint();*/
+        JewelQuestGUI.selectCard(JewelQuestGUI.MAIN_MENU);
 
 
     }

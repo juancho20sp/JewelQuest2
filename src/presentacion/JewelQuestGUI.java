@@ -1,27 +1,44 @@
 package presentacion;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 
 public class JewelQuestGUI extends JFrame{
     JPanel panelMenu;
     JLabel menuLabel;
     JButton newGameButton;
+    JButton resumeGameButton;
     JButton openGameButton;
     JButton saveButton;
     JButton saveAsButton;
     JButton modifyBoardButton;
     JButton endGameButton;
 
+    private boolean menuCreated = false;
+
+    public static JPanel cards;
+    public static Component toDelete;
+    final static String MAIN_MENU = "main menu";
+    final static String GAME_BOARD = "game board";
+
+    GameBoard board;
+
+
     /**
      * Constructor of the JewelQuestGUI class
      */
     public JewelQuestGUI(){
+        cards = new JPanel(new CardLayout());
+
         prepareElementos();
     }
 
@@ -32,7 +49,7 @@ public class JewelQuestGUI extends JFrame{
     public static void main(String[] args) {
         JFrame frame = new JewelQuestGUI();
 
-        frame.setLayout(new CardLayout());
+        //frame.setLayout(new CardLayout());
         frame.setVisible(true);
         frame.setResizable(true);
     }
@@ -60,6 +77,9 @@ public class JewelQuestGUI extends JFrame{
             }
         });
 
+        // Agregamos el contenedor principal
+        add(cards);
+
         // Creamos el menú
         this.createMenu();
 
@@ -81,10 +101,17 @@ public class JewelQuestGUI extends JFrame{
         menuLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         // Agregamos el lanel
-        panelMenu.add(menuLabel);
+        if (menuCreated){
+            remove(panelMenu);
+            panelMenu.add(menuLabel);
+        } else {
+            panelMenu.add(menuLabel);
+        }
+
 
         // Creamos los botones
         newGameButton = new JButton("Nuevo juego");
+        resumeGameButton = new JButton("Continuar juego");
         openGameButton = new JButton("Abrir juego");
         saveButton = new JButton("Guardar juego");
         saveAsButton = new JButton("Guardar como");
@@ -92,7 +119,12 @@ public class JewelQuestGUI extends JFrame{
         endGameButton = new JButton("Finalizar juego");
 
         // Agregamos los botones
-        panelMenu.add(newGameButton);
+        if (GameBoard.gameRunning){
+            panelMenu.add(resumeGameButton);
+        } else {
+            panelMenu.add(newGameButton);
+        }
+
         panelMenu.add(openGameButton);
         panelMenu.add(saveButton);
         panelMenu.add(saveAsButton);
@@ -100,7 +132,7 @@ public class JewelQuestGUI extends JFrame{
         panelMenu.add(endGameButton);
 
         // Agregamos el panel al frame
-        add(panelMenu);
+        cards.add(panelMenu, MAIN_MENU);
     }
 
     /**
@@ -113,6 +145,14 @@ public class JewelQuestGUI extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 newGame();
+            }
+        });
+
+        resumeGameButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("RESUME");
+                resumeGame();
             }
         });
 
@@ -158,9 +198,26 @@ public class JewelQuestGUI extends JFrame{
      * Method for creating a new game
      */
     private void newGame(){
-        GameBoard board = new GameBoard(getWidth(), getHeight());
+        board = new GameBoard(getWidth(), getHeight());
 
-        this.switchPanel(board);
+        this.createMenu();
+        this.prepareAccionesMenu();
+
+
+        cards.add(board, GAME_BOARD);
+
+        //this.switchPanel(board);
+        selectCard(GAME_BOARD);
+    }
+
+    /**
+     * Method for resuming the game
+     */
+    private void resumeGame(){
+        System.out.println("RESUME GAME");
+        board = new GameBoard();
+
+        selectCard(GAME_BOARD);
     }
 
     /**
@@ -264,7 +321,7 @@ public class JewelQuestGUI extends JFrame{
      * Method for ending the current game
      */
     private void endGame(){
-        JOptionPane.showMessageDialog(null, "Terminar juego");
+        askBeforeClosing();
     }
 
     /**
@@ -285,16 +342,28 @@ public class JewelQuestGUI extends JFrame{
      * Method for switching between panels
      */
     private void switchPanel(JPanel newPanel){
-        panelMenu.setVisible(false);
+
+        /*panelMenu.setVisible(false);
         add(newPanel);
 
+        invalidate();
+        validate();
+
+        repaint();*/
+    }
+
+    public void refresque(){
         invalidate();
         validate();
 
         repaint();
     }
 
+    public static void selectCard(String card){
+        CardLayout cl = (CardLayout) (cards.getLayout());
+        cl.show(cards, card);
 
+    }
 
 
 }
